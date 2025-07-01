@@ -4,7 +4,7 @@ Flask_Login==0.6.3
 password_strength==0.0.3.post2
 PyYAML==6.0.2
 temod==2.2.2
-temod_flask==2.2.4
+temod_flask==2.2.5
 temod_open_api==1.0.0
 toml==0.10.2
 gunicorn==23.0.0
