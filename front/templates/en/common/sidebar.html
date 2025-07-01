@@ -1,0 +1,32 @@
+<!--<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="toggle-button" onclick="toggleSidebar()">&#9776;</a>
+    <a href="/">Dashboard</a>
+    <a href="/users">Users</a>
+    <a href="/services">Services</a>
+</div>-->
+<div id="sidebar">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-rocket logo-icon"></i>
+            <h3 class="ms-2 mb-0"><strong>Watch</strong>Tower</h3>
+        </div>
+    </div>
+    
+    <hr class="mt-0 mb-2 bg-secondary">
+    
+    <div class="sidebar-menu px-2">
+        <a href="/" class="sidebar-item {% if active_page == 'monitoring' %}active{% endif %}">
+            <i class="fas fa-chart-line sidebar-icon"></i>
+            <span class="sidebar-text">Dashboard</span>
+        </a>
+        <a href="/services" class="sidebar-item {% if active_page == 'services' %}active{% endif %}">
+            <i class="fas fa-laptop sidebar-icon"></i>
+            <span class="sidebar-text">Services</span>
+        </a>
+        <a href="/users" class="sidebar-item {% if active_page == 'users' %}active{% endif %}">
+            <i class="fas fa-users sidebar-icon"></i>
+            <span class="sidebar-text">Users</span>
+            <!--<span class="badge bg-primary ms-auto">5</span>-->
+        </a>
+    </div>
+</div>

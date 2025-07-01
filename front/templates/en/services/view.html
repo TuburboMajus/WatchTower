@@ -1,0 +1,153 @@
+{% extends 'common/layouts/sidebared.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <h1 class="h4 mb-0 text-center">Edit Service: {{ service.name }}</h1>
+        </div>
+        <div class="card-body">
+            <form id="editServiceForm" class="needs-validation" novalidate>
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ service.name }}" required>
+                        <div class="invalid-feedback">
+                            Please provide a service name.
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="type" class="form-label">Service Type</label>
+                        <select class="form-select" id="type" name="type" disabled>
+                            <option value="webserver" {% if service.type == 'webserver' %}selected{% endif %}>Web Server</option>
+                            <option value="database" {% if service.type == 'database' %}selected{% endif %}>Database</option>
+                            <option value="program" {% if service.type == 'program' %}selected{% endif %}>Program</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a service type.
+                        </div>
+                    </div>
+                    
+                    
+                    {% with details = service.specifics %}
+                    	{% include "en/services/types/webserver.html" %}
+                    {% endwith %}
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="check_interval" class="form-label">Check Interval (seconds)</label>
+                        <input type="number" class="form-control" id="check_interval" name="check_interval" value="{{ service.check_interval }}" min="1" required>
+                        <div class="invalid-feedback">
+                            Please provide a valid check interval.
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3 d-flex align-items-end">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" {% if service.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">Active Monitoring</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between pt-3 border-top">
+                    <a href="/services" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Service
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast (add this anywhere in your template) -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="updateToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Service updated successfully!
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Bootstrap form validation
+(function () {
+    'use strict'
+    
+    const forms = document.querySelectorAll('.needs-validation')
+    
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editServiceForm');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const serviceData = {
+            name: document.getElementById('name').value,
+            type: document.getElementById('type').value,
+            details: Object.fromEntries(Object.values(document.getElementsByClassName('form-child')).reduce(function(a, input){
+            	return a.set(input.name,input.value)
+            },new Map([]))),
+            check_interval: parseInt(document.getElementById('check_interval').value),
+            is_active: document.getElementById('is_active').checked
+        };
+        
+        fetch(`/service/{{service.service_id}}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json', // Add if using Flask-WTF CSRF protection
+            },
+            body: JSON.stringify(serviceData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Show success message
+            const toast = new bootstrap.Toast(document.getElementById('updateToast'));
+            toast.show();
+            
+            // Optionally redirect after a delay
+            setTimeout(() => {
+                window.location.href = `/service/{{service.service_id}}`;
+            }, 1500);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating service: ' + error.message);
+        });
+    });
+});
+</script>
+{% endblock %}

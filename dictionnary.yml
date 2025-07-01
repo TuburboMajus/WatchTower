@@ -1,0 +1,12 @@
+en: 
+  login:
+    account_deactivated: Your account has been deactivated. Contact your administrator or the support team.
+    wrong_identifiers: No account found with these identifiers
+fr: 
+  login:
+    account_deactivated: Votre compte a été désactivé. Contactez votre administrateur ou l'équipe de support.
+    wrong_identifiers: Aucun compte trouvé avec ces identifiants
+ar: 
+  login:
+    account_deactivated: تم تعطيل حسابك. اتصل بمسؤولك أو بفريق الدعم.
+    wrong_identifiers: لم يتم العثور على حساب بهذه المعرفات

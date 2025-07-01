@@ -1,0 +1,55 @@
+<div class="col-md-3 mb-3">
+    <label for="scheme" class="form-label">Scheme</label>
+    <select class="form-select form-child" id="scheme" name="scheme" data-form-parent="details" required>
+        <option value="" disabled {% if details['scheme'] is not defined or details['scheme'] is none %}selected{% endif %}>Select server scheme...</option>
+        <option value="http" {% if details['scheme'] =='http' %}selected{% endif %}>Http</option>
+        <option value="https" {% if details['scheme'] =='https' %}selected{% endif %}>Https</option>
+    </select>
+    <div class="invalid-feedback">
+        Please provide a valid scheme.
+    </div>
+</div>
+
+<div class="col-md-3 mb-3">
+    <label for="method" class="form-label">Method</label>
+    <select class="form-select form-child" id="method" name="method" data-form-parent="details" required>
+        <option value="" disabled {% if details['method'] is not defined or details['method'] is none %}selected{% endif %}>Select request method...</option>
+        <option value="get" {% if details['method'] =='get' %}selected{% endif %}>GET</option>
+        <option value="post" {% if details['method'] =='post' %}selected{% endif %}>POST</option>
+    </select>
+    <div class="invalid-feedback">
+        Please provide a valid method.
+    </div>
+</div>
+
+<div class="col-md-6 mb-3">
+    <label for="host" class="form-label">Host</label>
+    <input type="text" class="form-control form-child" id="host" name="host" data-form-parent="details" value="{{details['host'] if details['host']}}" required>
+    <div class="invalid-feedback">
+        Please provide a valid host.
+    </div>
+</div>
+
+<div class="col-md-4 mb-3">
+    <label for="port" class="form-label">Port</label>
+    <input type="number" class="form-control form-child" id="port" name="port" min="1" max="65535" data-form-parent="details" value="{{details['port'] if details['port']}}">
+    <div class="invalid-feedback">
+        Please provide a valid port (1-65535).
+    </div>
+</div>
+
+<div class="col-md-4 mb-3">
+    <label for="path" class="form-label">Path</label>
+    <input type="text" class="form-control form-child" id="path" name="path" data-form-parent="details" value="{{details['path'] if details['path']}}">
+    <div class="invalid-feedback">
+        Please provide a valid path.
+    </div>
+</div>
+
+<div class="col-md-4 mb-3">
+    <label for="headers" class="form-label">Headers</label>
+    <input type="text" class="form-control form-child" id="headers" name="headers" data-form-parent="details" value="{{details['headers'] if details['headers']}}">
+    <div class="invalid-feedback">
+        Please provide a valid headers dict.
+    </div>
+</div>
