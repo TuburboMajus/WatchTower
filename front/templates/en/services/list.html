@@ -11,8 +11,6 @@
             <th scope="col">Service ID</th>
             <th scope="col">Name</th>
             <th scope="col">Type</th>
-            <th scope="col">Host</th>
-            <th scope="col">Port</th>
             <th scope="col">Active</th>
             <th scope="col">Check Interval</th>
             <th scope="col">Actions</th>
@@ -24,8 +22,6 @@
                 <td>{{ service.service_id }}</td>
                 <td>{{ service.name }}</td>
                 <td>{{ service.type }}</td>
-                <td>{{ service.host }}</td>
-                <td>{{ service.port }}</td>
                 <td>{{ 'Yes' if service.is_active else 'No' }}</td>
                 <td>{{ service.check_interval }} seconds</td>
                 <td>

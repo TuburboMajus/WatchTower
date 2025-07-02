@@ -1,0 +1,126 @@
+{% extends 'common/layouts/sidebared.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">تفاصيل الخدمة: {{ service.name }}</h1>
+                <!--<span class="badge bg-{{ 'success' if service.is_active else 'secondary' }}">
+                    {{ 'نشط' if service.is_active else 'غير نشط' }}
+                </span>-->
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <!-- Service Information Column -->
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h3 class="h6 mb-0"><i class="fas fa-info-circle me-2"></i>معلومات الخدمة</h3>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">معرف الخدمة:</dt>
+                                <dd class="col-sm-7">{{ service.service_id }}</dd>
+                                
+                                <dt class="col-sm-5">الاسم:</dt>
+                                <dd class="col-sm-7">{{ service.name }}</dd>
+                                
+                                <dt class="col-sm-5">النوع:</dt>
+                                <dd class="col-sm-7 text-capitalize">{{ service.type }}</dd>
+                                
+                                <dt class="col-sm-5">الحالة:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-{{ 'success' if service.current_status else 'secondary' }}">
+                                        {{ 'يعمل' if service.current_status else 'متوقف' }}
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-5">مدة التشغيل:</dt>
+                                <dd class="col-sm-7">{{ service.uptime|format_duration }}</dd>
+                                
+                                <dt class="col-sm-5">متوسط الاستجابة:</dt>
+                                <dd class="col-sm-7">
+                                    {{ service.avg_response_time.__str__()[:6] if service.avg_response_time is not none else '--'}} مللي ثانية
+                                    {% if service.avg_response_time is not none %}
+                                    <span class="badge bg-{{ 'success' if service.avg_response_time < 200 else 'warning' if service.avg_response_time < 500 else 'danger' }} ms-2">
+                                        {{ 'جيد' if service.avg_response_time < 200 else 'متوسط' if service.avg_response_time < 500 else 'ضعيف' }}
+                                    </span>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-5">فترة الفحص:</dt>
+                                <dd class="col-sm-7">{{ service.check_interval }} ثانية</dd>
+                                
+                                <dt class="col-sm-5">آخر فحص:</dt>
+                                <dd class="col-sm-7">{{ (service.latest_check['timestamp']|format_datetime) if service.latest_check }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Logs Column -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="h6 mb-0"><i class="fas fa-exclamation-triangle me-2"></i>سجل الأخطاء</h3>
+                                <span class="badge bg-{{ 'danger' if error_logs else 'secondary' }}">
+                                    {{ service.error_logs|length }} خطأ{{ 'أ' if service.error_logs|length != 1 }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if service.error_logs %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col" style="width: 160px;">الوقت</th>
+                                                <th scope="col">الرسالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for log in service.error_logs %}
+                                                <tr class="{{ 'table-danger' if loop.index <= 3 else '' }}">
+                                                    <td class="text-nowrap">{{ log['timestamp']|format_datetime }}</td>
+                                                    <td class="font-monospace small">{{ log['message']|truncate(100) }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                                    <p class="text-muted">لا توجد أخطاء مسجلة لهذه الخدمة</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if service.error_logs %}
+                        <div class="card-footer bg-light py-2">
+                            <small class="text-muted">عرض آخر {{ service.error_logs|length }} خطأ{{ 'أ' if service.error_logs|length != 1 }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer bg-white border-top py-3">
+            <div class="d-flex justify-content-between">
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>العودة للوحة التحكم
+                </a>
+                <div>
+                    <a href="/service/{{service.service_id}}" class="btn btn-primary me-2">
+                        <i class="fas fa-edit me-2"></i>تعديل الخدمة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

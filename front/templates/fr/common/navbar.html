@@ -1,0 +1,33 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+        <button class="toggle-btn me-3" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h4 class="mb-0">Tableau de bord</h4>
+        <div class="ms-auto d-flex align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                    <i class="fas fa-language me-1"></i> Langue
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% for language in languages %}
+                    <li><a class="dropdown-item" href="#" onclick="reloadWithLanguage('{{language['code']}}')">
+                        <span><img style="width: 25px; margin-right: 15px;" src="/static/images/flags/{{language['code']}}.png"></span>{{language['name']}}
+                    </a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-1"></i> Jean Dupont
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profil</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Paramètres</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

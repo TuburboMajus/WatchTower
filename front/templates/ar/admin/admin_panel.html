@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2c3e50;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--dark);
+            margin: 0;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-active {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+        .badge-inactive {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .action-btn:hover {
+            background-color: #f0f0f0;
+        }
+        .action-btn.edit {
+            color: var(--primary);
+        }
+        .action-btn.delete {
+            color: var(--danger);
+        }
+        .action-btn.test {
+            color: var(--success);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .interval-presets {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .preset-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .preset-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .audit-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .log-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 3px;
+        }
+        .log-action {
+            font-weight: 500;
+        }
+        .log-details {
+            font-size: 14px;
+        }
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ name }}</h1>
+            <div class="admin-actions">
+                <button class="btn btn-primary" id="add-service-btn">
+                    <i class="fas fa-plus"></i> إضافة خدمة
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">إدارة الخدمات</div>
+            <div class="bulk-actions">
+                <select id="bulk-action" class="form-control" style="width: auto;">
+                    <option value="">إجراءات جماعية</option>
+                    <option value="activate">تفعيل</option>
+                    <option value="deactivate">تعطيل</option>
+                    <option value="delete">حذف</option>
+                </select>
+                <button class="btn" id="apply-bulk-action">تطبيق</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>الاسم</th>
+                        <th>النوع</th>
+                        <th>النقطة الطرفية</th>
+                        <th>فترة الفحص</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr data-service-id="{{ service.id }}">
+                        <td><input type="checkbox" class="service-checkbox"></td>
+                        <td>{{ service.name }}</td>
+                        <td>{{ service.type }}</td>
+                        <td>{{ service.endpoint }}</td>
+                        <td>{{ service.check_interval }} ثانية</td>
+                        <td>
+                            <span class="badge {{ 'badge-active' if service.active else 'badge-inactive' }}">
+                                {{ 'نشط' if service.active else 'غير نشط' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="action-btn edit" data-service-id="{{ service.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn test" data-service-id="{{ service.id }}">
+                                <i class="fas fa-bolt"></i>
+                            </button>
+                            <button class="action-btn delete" data-service-id="{{ service.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">أحدث التغييرات في الإعدادات</div>
+            <div class="audit-log">
+                {% for log in audit_logs %}
+                <div class="log-entry">
+                    <div class="log-meta">
+                        <span>{{ log.timestamp }}</span>
+                        <span>{{ log.user }}</span>
+                    </div>
+                    <div class="log-action">{{ log.action }}</div>
+                    <div class="log-details">{{ log.details }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Service Modal -->
+    <div class="modal" id="service-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">إضافة خدمة جديدة</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="service-form">
+                <input type="hidden" id="service-id">
+                <div class="form-group">
+                    <label for="service-name">اسم الخدمة</label>
+                    <input type="text" id="service-name" class="form-control" required>
+                    <div class="error-message" id="name-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="service-type">نوع الخدمة</label>
+                    <select id="service-type" class="form-control" required>
+                        <option value="">اختر النوع</option>
+                        {% for type in service_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="service-endpoint">النقطة الطرفية</label>
+                    <input type="text" id="service-endpoint" class="form-control" required>
+                    <div class="error-message" id="endpoint-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="check-interval">فترة الفحص (ثانية)</label>
+                    <input type="number" id="check-interval" class="form-control" min="10" required>
+                    <div class="interval-presets">
+                        <button type="button" class="preset-btn" data-interval="30">30ث</button>
+                        <button type="button" class="preset-btn" data-interval="60">1د</button>
+                        <button type="button" class="preset-btn" data-interval="300">5د</button>
+                        <button type="button" class="preset-btn" data-interval="600">10د</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="service-active"> مراقبة نشطة
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancel-btn">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal handling
+        const modal = document.getElementById('service-modal');
+        const openModalBtn = document.getElementById('add-service-btn');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const serviceForm = document.getElementById('service-form');
+        const modalTitle = document.getElementById('modal-title');
+
+        function openModal(service = null) {
+            if (service) {
+                modalTitle.textContent = 'تعديل الخدمة';
+                document.getElementById('service-id').value = service.id;
+                document.getElementById('service-name').value = service.name;
+                document.getElementById('service-type').value = service.type;
+                document.getElementById('service-endpoint').value = service.endpoint;
+                document.getElementById('check-interval').value = service.check_interval;
+                document.getElementById('service-active').checked = service.active;
+            } else {
+                modalTitle.textContent = 'إضافة خدمة جديدة';
+                serviceForm.reset();
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.getElementById('name-error').textContent = '';
+            document.getElementById('endpoint-error').textContent = '';
+        }
+
+        openModalBtn.addEventListener('click', () => openModal());
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Edit buttons
+        document.querySelectorAll('.action-btn.edit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const serviceId = this.dataset.serviceId;
+                const service = {{ services|tojson }}.find(s => s.id == serviceId);
+                openModal(service);
+            });
+        });
+
+        // Test connection buttons
+        document.querySelectorAll('.action-btn.test').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const serviceId = this.dataset.serviceId;
+                fetch(`/api/services/${serviceId}/test`, {
+                    method: 'POST'
+                }).then(response => response.json())
+                .then(data => {
+                    alert(data.success ? 'تم الاتصال بنجاح!' : 'فشل الاتصال: ' + data.message);
+                });
+            });
+        });
+
+        // Delete buttons
+        document.querySelectorAll('.action-btn.delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('هل أنت متأكد من رغبتك في حذف هذه الخدمة؟')) {
+                    const serviceId = this.dataset.serviceId;
+                    fetch(`/api/services/${serviceId}`, {
+                        method: 'DELETE'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+
+        // Interval presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('check-interval').value = this.dataset.interval;
+            });
+        });
+
+        // Bulk actions
+        document.getElementById('select-all').addEventListener('change', function() {
+            document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        document.getElementById('apply-bulk-action').addEventListener('click', function() {
+            const action = document.getElementById('bulk-action').value;
+            if (!action) return;
+
+            const selectedIds = Array.from(document.querySelectorAll('.service-checkbox:checked'))
+                .map(checkbox => checkbox.closest('tr').dataset.serviceId);
+
+            if (selectedIds.length === 0) {
+                alert('الرجاء اختيار خدمة واحدة على الأقل');
+                return;
+            }
+
+            if (confirm(`هل أنت متأكد من رغبتك في ${action} ${selectedIds.length} خدمة؟`)) {
+                fetch('/api/services/bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: action,
+                        service_ids: selectedIds
+                    })
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+
+        // Form submission
+        serviceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('service-id').value;
+            const isEdit = !!serviceId;
+            const url = isEdit ? `/api/services/${serviceId}` : '/api/services';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const serviceData = {
+                name: document.getElementById('service-name').value,
+                type: document.getElementById('service-type').value,
+                endpoint: document.getElementById('service-endpoint').value,
+                check_interval: document.getElementById('check-interval').value,
+                active: document.getElementById('service-active').checked
+            };
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(serviceData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        if (data.errors.name) {
+                            document.getElementById('name-error').textContent = data.errors.name;
+                        }
+                        if (data.errors.endpoint) {
+                            document.getElementById('endpoint-error').textContent = data.errors.endpoint;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

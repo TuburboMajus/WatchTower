@@ -1,0 +1,181 @@
+{% extends 'common/layouts/sidebared.html' %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="/static/css/dashboard.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête -->
+    <div class="header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="display-5 mb-0">{{ name }}</h1>
+            <div class="uptime-badge">
+                <span class="badge bg-primary p-2">
+                    <h5 class="mb-0">Disponibilité globale : {{ uptime_stats.global.__str__()[:5] }}% (24h)</h5>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <hr class="my-3">
+    
+    <!-- Bannière d'alertes critiques -->
+    {% if critical_alerts %}
+    <div class="critical-banner alert alert-danger d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>CRITIQUE :</strong> 
+            <span class="ms-1">{{ critical_alerts|length }} service{{ 's' if critical_alerts|length > 1 }} hors ligne</span>
+        </div>
+        <button id="acknowledge-alerts" class="btn btn-primary btn-sm">
+            <i class="fas fa-check-circle me-1"></i> Acquitter
+        </button>
+    </div>
+    {% endif %}
+    
+    <!-- Grille des services -->
+    <div class="service-grid row g-4">
+        {% for service in services %}
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+            <div class="card service-card h-100 {{ 'border-left-success' if service.status == 'up' else 'border-left-danger' if service.status == 'down' else 'border-left-warning' }}" 
+                 data-sid="{{ service.service_id }}">
+                <div class="card-header service-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="service-name mb-0">{{ service.name }}</h5>
+                    <span class="badge bg-{{ 'success' if service.current_status else 'warning' if service.current_status is none else 'danger' }} text-white">
+                        {{ ('ACTIF' if service.current_status else ('INCONNU' if service.current_status is none else 'INACTIF')) |upper }}
+                    </span>
+                </div>
+                <div class="card-body py-3">
+                    <div class="service-meta mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-2">
+                            <span><i class="fas fa-clock me-1"></i> Disponibilité : {{ service.uptime.__str__()[:5] }}%</span>
+                            <span><i class="fas fa-sync-alt me-1"></i> Dernier contrôle : {{ service.latest_check['timestamp'] }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sparkline-container mb-3" style="height: 40px;">
+                        <!-- Graphique sparkline -->
+                        <span class="sparkline">{{ service.response_times|join(',') }}</span>
+                    </div>
+                    
+                    <div class="service-actions d-flex justify-content-between align-items-center">
+                        <div class="response-time">
+                            <span class="small">
+                                Moy. : {{ service.avg_response_time.__str__()[:6] if service.avg_response_time is not none else '--' }}ms
+                                {% if service.avg_response_time is not none %}
+                                <span class="fw-bold text-{{ 'success' if service.avg_response_time < 200 else 'warning' if service.avg_response_time < 500 else 'danger' }}">
+                                    ({{ 'Bon' if service.avg_response_time < 200 else 'Moyen' if service.avg_response_time < 500 else 'Mauvais' }})
+                                </span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="monitoring-switch-{{ service.service_id }}" {{ 'checked' if service.is_active }}>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    // Initialisation des sparklines
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation des sparklines
+        if (typeof Sparkline === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js';
+            script.onload = function(){try{initializeSparklines()}catch(e){}};
+            document.head.appendChild(script);
+        } else {
+            try{initializeSparklines()}catch(e){}
+        }
+
+        function initializeSparklines() {
+            // Initialisation des sparklines
+            [].forEach.call(document.querySelectorAll('.sparkline'), function(el) {
+                // Conversion des données en tableau de nombres
+                const values = el.textContent.split(',').map(Number);
+                
+                // Dessin du sparkline
+                Sparkline.draw(el, values, {
+                    type: 'line',
+                    width: '100%',
+                    height: '40px',
+                    lineColor: '#4CAF50',
+                    fillColor: '#E8F5E9',
+                    spotColor: false,
+                    minSpotColor: false,
+                    maxSpotColor: false,
+                    highlightSpotColor: '#FF5722',
+                    highlightLineColor: '#FF5722',
+                    tooltipFormatter: function(sparkline, options, fields) {
+                        return 'Temps de réponse : ' + fields.y + 'ms';
+                    }
+                });
+            });
+        }
+
+        // Gestionnaire de clic sur les cartes de service
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach(card => {
+            card.addEventListener('click', function(event) {
+                event.stopPropagation();
+                window.location.href = `/monitor/${this.dataset.sid}`;
+            });
+        });
+
+        // Actualisation automatique toutes les 30 secondes
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+
+        // Basculer l'état de surveillance
+        const toggleSwitches = document.querySelectorAll('.form-check-input');
+        toggleSwitches.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                event.stopPropagation();
+            })
+            toggle.addEventListener('change', function(event) {
+                const serviceCard = this.closest('.service-card');
+                const serviceId = serviceCard.dataset.sid;
+                const isActive = this.checked;
+                
+                fetch(`/service/${serviceId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ is_active: isActive })
+                }).catch(error => {
+                    console.error('Erreur :', error);
+                    this.checked = !isActive;
+                });
+            });
+        });
+
+        // Acquitter les alertes critiques
+        const acknowledgeBtn = document.getElementById('acknowledge-alerts');
+        if (acknowledgeBtn) {
+            acknowledgeBtn.addEventListener('click', function() {
+                fetch('/api/alerts/acknowledge', {
+                    method: 'POST'
+                }).then(() => {
+                    const criticalBanner = document.querySelector('.critical-banner');
+                    if (criticalBanner) {
+                        criticalBanner.style.transition = 'opacity 0.5s';
+                        criticalBanner.style.opacity = '0';
+                        setTimeout(() => {
+                            criticalBanner.style.display = 'none';
+                        }, 500);
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

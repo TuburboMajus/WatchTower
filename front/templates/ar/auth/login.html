@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            padding: 40px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #4299e1;
+            outline: none;
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #718096;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #3182ce;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .alert-warning {
+            background-color: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            color: #c05621;
+        }
+        .session-warning {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #e53e3e;
+            padding: 15px 25px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #718096;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>تسجيل دخول آمن</h1>
+
+        <form method="POST" action="">
+
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" class="form-control" placeholder="البريد الإلكتروني" value="" name="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <div class="password-container">
+                    <input type="password" class="form-control" id="password" placeholder="كلمة المرور" name="password">
+                    <span class="toggle-password" id="togglePassword">👁️</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="password-container">
+                    <input type="checkbox" name="remember">
+                    <span class="toggle-password">تذكرني</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">تسجيل الدخول</button>
+        </form>
+        
+        <div class="footer">
+            <p>بوابة المصادقة الآمنة • الإصدار 2.4</p>
+        </div>
+    </div>
+
+    <div class="session-warning" id="sessionWarning">
+        ستنتهي جلستك خلال <span id="countdown">5:00</span>. انقر لتمديدها.
+    </div>
+
+    <script>
+        // Password visibility toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🔒';
+        });
+
+        // Session timeout warning
+        let timeout;
+        const sessionWarning = document.getElementById('sessionWarning');
+        const countdown = document.getElementById('countdown');
+        
+        function resetTimer() {
+            clearTimeout(timeout);
+            sessionWarning.style.display = 'none';
+            
+            // Show warning after 25 minutes (adjust as needed)
+            timeout = setTimeout(() => {
+                sessionWarning.style.display = 'block';
+                startCountdown(300); // 5 minute countdown
+            }, 25 * 60 * 1000);
+        }
+        
+        function startCountdown(seconds) {
+            let remaining = seconds;
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                countdown.textContent = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+                
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    window.location.href = '/logout';
+                }
+                remaining--;
+            }, 1000);
+            
+            sessionWarning.addEventListener('click', () => {
+                clearInterval(timer);
+                resetTimer();
+                fetch('/extend-session', { method: 'POST' });
+            });
+        }
+        
+        // Initialize timer on page load
+        document.addEventListener('DOMContentLoaded', resetTimer);
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+    </script>
+</body>
+</html>

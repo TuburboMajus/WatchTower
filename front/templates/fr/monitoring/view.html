@@ -1,0 +1,126 @@
+{% extends 'common/layouts/sidebared.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Détails du service : {{ service.name }}</h1>
+                <!--<span class="badge bg-{{ 'success' if service.is_active else 'secondary' }}">
+                    {{ 'Actif' if service.is_active else 'Inactif' }}
+                </span>-->
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <!-- Colonne Informations du service -->
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h3 class="h6 mb-0"><i class="fas fa-info-circle me-2"></i>Informations du service</h3>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">ID Service :</dt>
+                                <dd class="col-sm-7">{{ service.service_id }}</dd>
+                                
+                                <dt class="col-sm-5">Nom :</dt>
+                                <dd class="col-sm-7">{{ service.name }}</dd>
+                                
+                                <dt class="col-sm-5">Type :</dt>
+                                <dd class="col-sm-7 text-capitalize">{{ service.type }}</dd>
+                                
+                                <dt class="col-sm-5">Statut :</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-{{ 'success' if service.current_status else 'secondary' }}">
+                                        {{ 'ACTIF' if service.current_status else 'INACTIF' }}
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-5">Disponibilité :</dt>
+                                <dd class="col-sm-7">{{ service.uptime|format_duration }}</dd>
+                                
+                                <dt class="col-sm-5">Temps de réponse moyen :</dt>
+                                <dd class="col-sm-7">
+                                    {{ service.avg_response_time.__str__()[:6] if service.avg_response_time is not none else '--'}} ms
+                                    {% if service.avg_response_time is not none %}
+                                    <span class="badge bg-{{ 'success' if service.avg_response_time < 200 else 'warning' if service.avg_response_time < 500 else 'danger' }} ms-2">
+                                        {{ 'Bon' if service.avg_response_time < 200 else 'Moyen' if service.avg_response_time < 500 else 'Mauvais' }}
+                                    </span>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-5">Intervalle de vérification :</dt>
+                                <dd class="col-sm-7">{{ service.check_interval }} secondes</dd>
+                                
+                                <dt class="col-sm-5">Dernier contrôle :</dt>
+                                <dd class="col-sm-7">{{ (service.latest_check['timestamp']|format_datetime) if service.latest_check }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Colonne Journaux d'erreurs -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="h6 mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Journaux d'erreurs</h3>
+                                <span class="badge bg-{{ 'danger' if error_logs else 'secondary' }}">
+                                    {{ service.error_logs|length }} erreur{{ 's' if service.error_logs|length != 1 }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if service.error_logs %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col" style="width: 160px;">Date</th>
+                                                <th scope="col">Message</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for log in service.error_logs %}
+                                                <tr class="{{ 'table-danger' if loop.index <= 3 else '' }}">
+                                                    <td class="text-nowrap">{{ log['timestamp']|format_datetime }}</td>
+                                                    <td class="font-monospace small">{{ log['message']|truncate(100) }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                                    <p class="text-muted">Aucune erreur enregistrée pour ce service</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if service.error_logs %}
+                        <div class="card-footer bg-light py-2">
+                            <small class="text-muted">Affichage des {{ service.error_logs|length }} erreur{{ 's' if service.error_logs|length != 1 }} les plus récentes</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer bg-white border-top py-3">
+            <div class="d-flex justify-content-between">
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+                </a>
+                <div>
+                    <a href="/service/{{service.service_id}}" class="btn btn-primary me-2">
+                        <i class="fas fa-edit me-2"></i>Modifier le service
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
