@@ -42,7 +42,7 @@ def get_logger(logging_dir):
 	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 	if logging_dir is not None and os.path.isdir(logging_dir):
-		fh = logging.RotatingFileHandler(
+		fh = logging.handlers.RotatingFileHandler(
 			os.path.join(logging_dir,f"{HEALTHCHECKER_LOG_NAME}.log"),
 			maxBytes=5*1024*1024,  # 5MB
 			backupCount=3,
