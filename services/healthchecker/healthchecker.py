@@ -31,12 +31,23 @@ def load_configs(root_dir):
 
 
 def get_logger(logging_dir):
+	os.makedirs(logging_dir, exist_ok=True)
+
 	logger = logging.getLogger()
 	logger.setLevel(logging.INFO)
+
+	if logger.handlers:
+		return logger
+
 	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 	if logging_dir is not None and os.path.isdir(logging_dir):
-		fh = logging.FileHandler(os.path.join(logging_dir,f"{HEALTHCHECKER_LOG_NAME}.log"), 'a')
+		fh = logging.RotatingFileHandler(
+			os.path.join(logging_dir,f"{HEALTHCHECKER_LOG_NAME}.log"),
+			maxBytes=5*1024*1024,  # 5MB
+			backupCount=3,
+			encoding='utf-8'
+		) 
 		fh.setLevel(logging.INFO)
 		fh.setFormatter(formatter)
 		logger.addHandler(fh)
@@ -51,7 +62,11 @@ def get_logger(logging_dir):
 	return logger
 
 
+
 class HealthCheckException(Exception):
+	pass
+
+class NoNeedForCheck(Exception):
 	pass
 		
 		
@@ -102,7 +117,7 @@ class HealthChecker(object):
 		))
 
 		if service_file.latest_check is not None and ((service_file.latest_check['timestamp'] + timedelta(seconds=service_file.check_interval)) > datetime.now()):
-			return result
+			raise NoNeedForCheck()
 
 		start_time = time.time(); error_message = None
 		if service_file.service['type'].name == "webserver":
@@ -138,15 +153,21 @@ class HealthChecker(object):
 	def process(self):
 
 		health_checks = []
+		checked_on = 0; passed = 0;
 		for service in self.storages['services'].list(is_active=True):
 
 			try:
-				self.check_on(ServiceFile(service,None,load_checks=False))
+				health_checks.append(self.check_on(ServiceFile(service,None,load_checks=False)))*
+				checked_on += 1
+			except NoNeedForCheck:
+				health_checks.append(True)
+				passed += 1
 			except:
 				LOGGER.error(f"Uncaught error treating data while checking on service {service['service_id']}")
 				LOGGER.error(traceback.format_exc())
 				health_checks.append(False)
 
+		LOGGER.info(f"{checked_on} services were checked, {passed} were passed")
 		if len(health_checks) == 0:
 			if datetime.now().minute % 10 == 0 and datetime.now().second < 15:
 				LOGGER.info("No new data to treat")
