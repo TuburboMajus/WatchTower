@@ -113,6 +113,7 @@ class HealthChecker(object):
 		service_file.checks = list(self.storages['healthChecks'].list(
 			Superior(DateTimeAttribute("timestamp",value=datetime.now() - timedelta(days=7))),
 			service_id=service_file.service_id,
+			orderby="timestamp DESC",
 			limit=1
 		))
 
@@ -157,7 +158,7 @@ class HealthChecker(object):
 		for service in self.storages['services'].list(is_active=True):
 
 			try:
-				health_checks.append(self.check_on(ServiceFile(service,None,load_checks=False)))*
+				health_checks.append(self.check_on(ServiceFile(service,None,load_checks=False)))
 				checked_on += 1
 			except NoNeedForCheck:
 				health_checks.append(True)

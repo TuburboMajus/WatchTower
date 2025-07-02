@@ -50,7 +50,8 @@ class ServiceFile(object):
 		self.checks = sorted(HealthCheck.storage.list(
 			Superior(DateTimeAttribute("timestamp",value=datetime.now() - timedelta(days=7))),
 			service_id=self.service_id,
-			limit=1000
+			orderby="timestamp DESC",
+			limit=500
 		),key = lambda x:x['timestamp'])
 
 	@property
