@@ -39,7 +39,7 @@ def order_services(dct):
     return "created_at"
 
 @services_bp.split_route({
-    "/api/v1.0/services": lambda x,y:{"status":x[0],"data":x[1].to_dict(translate={"current":"data"})},
+    "/api/v1.0/services": lambda x,y:y.to_dict(translator={"current":"data"}),
     "/services": lambda x,y: Response(status=x, response=NormalUserTemplate(
         Path(services_bp.configuration["templates_folder"].format(language=g.language['code'])).joinpath("list.html"),
         pagination=y

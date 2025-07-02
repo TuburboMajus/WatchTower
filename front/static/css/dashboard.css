@@ -31,6 +31,11 @@
 .service-meta {
     margin-top: 10px;
 }
+.service-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 .sparkline-container {
     margin-top: 10px;
 }

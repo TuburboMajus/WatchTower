@@ -102,7 +102,10 @@ class ServiceFile(object):
 		dct.update({
 			"health_checks":[check.to_dict() for check in self.checks],
 			"uptime": self.uptime,
-			"avg_response_time": self.avg_response_time
+			"avg_response_time": self.avg_response_time,
+			"latest_check":self.latest_check.to_dict() if self.latest_check is not None else None,
+			"uptime": self.uptime,
+			"current_status":self.current_status
 		})
 		return dct
 
